@@ -14,7 +14,7 @@
   .modal-content {
     width: 80%;
     height: 80%;
-    background: white;
+    background-image: url('https://media.istockphoto.com/id/475511846/vector/kitchen-seamless-pattern-vector-background.jpg?s=612x612&w=0&k=20&c=inpW5Mc2MFyuc7PsMXVY49OUBU39EXekcCNe8xVeI_k=');
     padding: 20px;
     position: relative;
     overflow: auto;
@@ -26,5 +26,11 @@
     right: 10px;
     font-size: 20px;
     cursor: pointer;
+  }
+
+  .modal-fixed{
+    display: flex;
+    justify-content: center;
+    position: sticky;
   }
   

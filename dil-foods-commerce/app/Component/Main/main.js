@@ -1,7 +1,8 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
 import Modal from "./modal";
 import CartModal from "./cartmodal";
+import { MdDelete } from "react-icons/md";
 
 function Main() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -13,6 +14,8 @@ function Main() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [counters, setCounters] = useState(1);
 
   useEffect(() => {
     const apiUrl =
@@ -38,13 +41,37 @@ function Main() {
     setSortingOption(event.target.value);
   };
 
+  const IncreaseCounter = () => {
+    if (counters >= 1) {
+      setCounters(counters + 1);
+    } else {
+      setCounters(1);
+    }
+  };
+
+  const DecreaseCounter = () => {
+    if (counters >= 1) {
+      setCounters(counters - 1);
+    } else {
+      setCounters(1);
+    }
+  };
 
   const handelOpenModalProduct = (product) => {
     setSelectedProduct(product);
     setModalOpen(true);
   };
 
+  useEffect(() => {
+    console.log(cart);
+  }, [cart]);
+
   const handelOpenModalCart = (product) => {
+    setCart((prevCart) => {
+      const updatedCart = [...prevCart, product];
+      return updatedCart;
+    });
+
     setSelectedProductCart(product);
     setModalCartOpen(true);
   };
@@ -68,6 +95,10 @@ function Main() {
       default:
         return records;
     }
+  };
+
+  const handleremoveProductcart = () => {
+    console.log("handleRemoveProduct");
   };
 
   return (
@@ -165,7 +196,10 @@ function Main() {
                 <p className="text-center mb-4">
                   Rating: {selectedProduct.rating.rate}
                 </p>
-                <button onClick={() => handelOpenModalCart(selectedProduct)} className="w-full text-white font-semibold bg-gradient-to-r from-white via-pink-500 to-red-500 p-2 rounded-md mb-2 shadow-black">
+                <button
+                  onClick={() => handelOpenModalCart(selectedProduct)}
+                  className="w-full text-white font-semibold bg-gradient-to-r from-white via-pink-500 to-red-500 p-2 rounded-md mb-2 shadow-black"
+                >
                   Add to Cart
                 </button>
               </div>
@@ -177,8 +211,26 @@ function Main() {
       {modalCartOpen && selectedProductCart && (
         <CartModal onClose={handelCloseModal}>
           {/* Content for the modal */}
-          <div className="w-full h-full">
-            <div className="flex h-full justify-between gap-10">
+          <div className="flex flex-col justify-center h-full w-full">
+            <div className="w-full h-11/12">
+              <div className="flex h-full justify-between flex-col">
+                {cart.map((item, index) => {
+                  return (
+                    <div key={index} className="mb-4">
+                      <div className="w-full h-24 flex bg-white rounded-lg shadow-2xl justify-between items-center px-8">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="h-full object-cover"
+                        />
+                        <p className="text-xl text-center font-bold line-clamp-0.1">{item.title}</p>
+                        <p className="text-xl text-center font-bold line-clamp-0.1">${item.price * counters}</p>
+                        <div className="w-20 flex justify-center gap-4 border-2 border-black rounded-xl"><button onClick={IncreaseCounter}>+</button><span>{counters}</span><button onClick={DecreaseCounter}>-</button></div>
+                      </div>                      
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </CartModal>
