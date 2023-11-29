@@ -11,6 +11,7 @@ function Main() {
      .then((data) => setRecords(data))
      .catch((err) => console.error(err));
  }, []);
+ 
 
   return (
     <div className="w-full bg-white">
