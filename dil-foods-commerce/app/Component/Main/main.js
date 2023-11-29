@@ -1,7 +1,10 @@
 'use client'
 import React, { useState, useEffect } from "react";
+import Modal from "./modal";
 
 function Main() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [records, setRecords] = useState([]);
   const [sortingOption, setSortingOption] = useState("Recommended");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -30,6 +33,16 @@ function Main() {
 
   const handleSortingChange = (event) => {
     setSortingOption(event.target.value);
+  };
+
+
+  const handelOpenModalProduct = (product) => {
+    setSelectedProduct(product);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
   };
 
   const getSortedRecords = () => {
@@ -95,9 +108,10 @@ function Main() {
       </div>
       <div className="w-full grid grid-cols-4 gap-4 mt-11">
         {getSortedRecords().map((item, index) => (
-          <div
+          <div 
+          onClick={() => handelOpenModalProduct(item)}
             key={index}
-            className="w-full h-full p-4 border border-gray-300 rounded-md shadow-md flex flex-col justify-center items-center"
+            className="w-full cursor-pointer h-full p-4 border border-gray-300 rounded-md shadow-md flex flex-col justify-center items-center"
           >
             <img
               src={item.image}
@@ -112,6 +126,24 @@ function Main() {
           </div>
         ))}
       </div>
+      {modalOpen && selectedProduct && (
+        <Modal onClose={closeModal}>
+          {/* Content for the modal */}
+          <div className="w-full h-full">
+            <div className="flex h-full justify-between gap-10">
+              <div className="flex h-full items-center">
+              <img src={selectedProduct.image} alt={selectedProduct.title} className="h-72 object-cover mb-4" />
+              </div>
+              <div className="me-10 w-2/4 h-full items-center justify-center flex flex-col">
+                <h1 className="text-4xl text-center font-bold line-clamp-1 mb-4">{selectedProduct.title}</h1>
+                <p className="text-center mb-4">{selectedProduct.description}</p>
+                <p className="text-center mb-4">Rating: {selectedProduct.rating.rate}</p>
+                <button className="w-full text-white font-semibold bg-gradient-to-r from-white via-pink-500 to-red-500 p-2 rounded-md mb-2 shadow-black">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
