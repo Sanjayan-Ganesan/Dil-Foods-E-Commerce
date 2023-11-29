@@ -51,10 +51,12 @@ function Main() {
 
   const handelCloseModal = () => {
     setModalCartOpen(false);
+    setModalOpen(false);
   };
 
   const closeModal = () => {
     setModalOpen(false);
+    setModalCartOpen(false);
   };
 
   const getSortedRecords = () => {
@@ -163,7 +165,7 @@ function Main() {
                 <p className="text-center mb-4">
                   Rating: {selectedProduct.rating.rate}
                 </p>
-                <button className="w-full text-white font-semibold bg-gradient-to-r from-white via-pink-500 to-red-500 p-2 rounded-md mb-2 shadow-black">
+                <button onClick={() => handelOpenModalCart(selectedProduct)} className="w-full text-white font-semibold bg-gradient-to-r from-white via-pink-500 to-red-500 p-2 rounded-md mb-2 shadow-black">
                   Add to Cart
                 </button>
               </div>
@@ -173,34 +175,13 @@ function Main() {
       )}
 
       {modalCartOpen && selectedProductCart && (
-        <Modal onClose={handelCloseModal}>
+        <CartModal onClose={handelCloseModal}>
           {/* Content for the modal */}
           <div className="w-full h-full">
             <div className="flex h-full justify-between gap-10">
-              <div className="flex h-full items-center">
-                <img
-                  src={selectedProductCart.image}
-                  alt={selectedProductCart.title}
-                  className="h-72 object-cover mb-4"
-                />
-              </div>
-              <div className="me-10 w-2/4 h-full items-center justify-center flex flex-col">
-                <h1 className="text-4xl text-center font-bold line-clamp-1 mb-4">
-                  {selectedProductCart.title}
-                </h1>
-                <p className="text-center mb-4">
-                  {selectedProductCart.description}
-                </p>
-                <p className="text-center mb-4">
-                  Rating: {selectedProductCart.rating.rate}
-                </p>
-                <button className="w-full text-white font-semibold bg-gradient-to-r from-white via-pink-500 to-red-500 p-2 rounded-md mb-2 shadow-black">
-                  Add to Cart
-                </button>
-              </div>
             </div>
           </div>
-        </Modal>
+        </CartModal>
       )}
     </div>
   );
