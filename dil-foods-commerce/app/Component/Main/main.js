@@ -4,13 +4,29 @@ import React, { useState, useEffect } from "react";
 function Main() {
   const [records, setRecords] = useState([]);
   const [sortingOption, setSortingOption] = useState("Recommended");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch("https://fakestoreapi.com/products")
+    const apiUrl =
+      selectedCategory === "all"
+        ? "https://fakestoreapi.com/products"
+        : `https://fakestoreapi.com/products/category/${encodeURIComponent(
+            selectedCategory
+          )}`;
+
+    fetch(apiUrl)
       .then((res) => res.json())
-      .then((data) => setRecords(data))
-      .catch((err) => console.error(err));
-  }, []);
+      .then((data) => {
+        setRecords(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err);
+        setLoading(false);
+      });
+  }, [selectedCategory]);
 
   const handleSortingChange = (event) => {
     setSortingOption(event.target.value);
@@ -29,19 +45,38 @@ function Main() {
 
   return (
     <div className="w-full bg-white">
-      <div className="flex justify-center mb-15">
+      <div className="flex justify-center mb-5">
         <div className="w-3/5 h-10 flex justify-between items-center">
-          <button className="w-28 p-2 bg-black rounded-full border-2 text-white border-black">
+          <button
+            className="w-28 p-2 bg-black rounded-full border-2 text-white border-black"
+            onClick={() => setSelectedCategory("men's clothing")}
+          >
             Men's
           </button>
-          <button className="w-28 p-2 bg-black rounded-full border-2 text-white border-black">
+          <button
+            className="w-28 p-2 bg-black rounded-full border-2 text-white border-black"
+            onClick={() => setSelectedCategory("women's clothing")}
+          >
             Women's
           </button>
-          <button className="w-28 p-2 bg-black rounded-full border-2 text-white border-black">
+          <button
+            className="w-28 p-2 bg-black rounded-full border-2 text-white border-black"
+            onClick={() => setSelectedCategory("electronics")}
+          >
             Electronics
           </button>
-          <button className="w-28 p-2 bg-black rounded-full border-2 text-white border-black">
+          <button
+            className="w-28 p-2 bg-black rounded-full border-2 text-white border-black"
+            onClick={() => setSelectedCategory("jewelery")}
+          >
             Jewelry
+          </button>
+
+          <button
+            className="w-28 p-2 bg-black rounded-full border-2 text-white border-black"
+            onClick={() => setSelectedCategory("all")}
+          >
+            All
           </button>
         </div>
       </div>
