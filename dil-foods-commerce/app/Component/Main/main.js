@@ -97,8 +97,11 @@ function Main() {
     }
   };
 
-  const handleremoveProductcart = () => {
-    console.log("handleRemoveProduct");
+  const handleDeleteitem = (productId) => {
+    setCart((prevCart) => {
+      const updatedCart = prevCart.filter((item) => item.id !== productId);
+      return updatedCart;
+    });
   };
 
   return (
@@ -214,7 +217,7 @@ function Main() {
           <div className="flex flex-col justify-center h-full w-full">
             <div className="w-full h-11/12">
               <div className="flex h-full justify-between flex-col">
-                {cart.map((item, index) => {
+                {cart.length > 0 ? cart.map((item, index) => {
                   return (
                     <div key={index} className="mb-4">
                       <div className="w-full h-24 flex bg-white rounded-lg shadow-2xl justify-between items-center px-8">
@@ -223,13 +226,19 @@ function Main() {
                           alt={item.title}
                           className="h-full object-cover"
                         />
-                        <p className="text-xl text-center font-bold line-clamp-0.1">{item.title}</p>
-                        <p className="text-xl text-center font-bold line-clamp-0.1">${item.price * counters}</p>
+                        <p className="w-60 text-xl text-center font-bold line-clamp-1">{item.title}</p>
+                        <p className="text-xl text-center font-bold line-clamp-1">${item.price * counters}</p>
                         <div className="w-20 flex justify-center gap-4 border-2 border-black rounded-xl"><button onClick={IncreaseCounter}>+</button><span>{counters}</span><button onClick={DecreaseCounter}>-</button></div>
+                        <MdDelete size={30} className="cursor-pointer" onClick={()=>handleDeleteitem(item.id)} />
                       </div>                      
                     </div>
                   );
-                })}
+                }) : <div>
+                  <div className="w-full flex justify-center items-center flex-col">
+                    <h2 className="text-4xl text-center font-bold mb-4">The Cart is Empty!!!</h2>
+                    <img className="w-50" src="https://static-00.iconduck.com/assets.00/empty-cart-illustration-512x428-mcol2auz.png"/>
+                  </div>                  
+                  </div>}
               </div>
             </div>
           </div>
