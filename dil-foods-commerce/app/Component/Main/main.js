@@ -1,7 +1,8 @@
-'use client'
+"use client";
 import React, { useState, useEffect } from "react";
 import Modal from "./modal";
 import CartModal from "./cartmodal";
+import CheckoutModal from "./checkoutmodal";
 import { MdDelete } from "react-icons/md";
 
 function Main() {
@@ -16,12 +17,16 @@ function Main() {
   const [error, setError] = useState(null);
   const [cart, setCart] = useState([]);
   const [productCounters, setProductCounters] = useState({});
+  const [paymentMethodModal, setPaymentMethodModal] = useState(false);
+  const [isPaid, setIsPaid] = useState(false);
 
   useEffect(() => {
     const apiUrl =
       selectedCategory === "all"
         ? "https://fakestoreapi.com/products"
-        : `https://fakestoreapi.com/products/category/${encodeURIComponent(selectedCategory)}`;
+        : `https://fakestoreapi.com/products/category/${encodeURIComponent(
+            selectedCategory
+          )}`;
 
     fetch(apiUrl)
       .then((res) => res.json())
@@ -41,14 +46,20 @@ function Main() {
 
   const IncreaseCounter = (ProductId) => {
     setProductCounters((prevCounters) => {
-      return { ...prevCounters, [ProductId]: (prevCounters[ProductId] || 0) + 1 };
+      return {
+        ...prevCounters,
+        [ProductId]: (prevCounters[ProductId] || 0) + 1,
+      };
     });
   };
 
   const DecreaseCounter = (ProductId) => {
     setProductCounters((prevCounters) => {
       const currentCounter = prevCounters[ProductId] || 0;
-      return { ...prevCounters, [ProductId]: currentCounter > 1 ? currentCounter - 1 : 1 };
+      return {
+        ...prevCounters,
+        [ProductId]: currentCounter > 1 ? currentCounter - 1 : 1,
+      };
     });
   };
 
@@ -64,7 +75,7 @@ function Main() {
   const handelOpenModalCart = (product) => {
     // Check if the product already exists in the cart
     const isProductInCart = cart.some((item) => item.id === product.id);
-  
+
     if (!isProductInCart) {
       setCart((prevCart) => [...prevCart, product]);
       setProductCounters((prevCounters) => ({
@@ -72,27 +83,37 @@ function Main() {
         [product.id]: prevCounters[product.id] || 1,
       }));
     }
-  
+
     setSelectedProductCart(product);
     setModalCartOpen(true);
   };
-  
 
   const handelCloseModal = () => {
+    setPaymentMethodModal(false);
     setModalCartOpen(false);
     setModalOpen(false);
   };
 
   const closeModal = () => {
+    setPaymentMethodModal(false);
     setModalOpen(false);
     setModalCartOpen(false);
   };
 
+  const handelCloseModalPayment = () => {
+    setPaymentMethodModal(false);
+    setModalOpen(false);
+    setModalCartOpen(false);
+  };
   const handleDeleteitem = (productId) => {
     setCart((prevCart) => {
       const updatedCart = prevCart.filter((item) => item.id !== productId);
       return updatedCart;
     });
+  };
+
+  const handlePaymentOrder = () => {
+    setIsPaid(true);
   };
 
   const getSortedRecords = () => {
@@ -104,6 +125,19 @@ function Main() {
       default:
         return records;
     }
+  };
+
+  const handletoproceed = () => {
+    setPaymentMethodModal(true);
+  };
+
+  const calculateTotal = () => {
+    const totalPrice = cart.reduce(
+      (accumulator, item) =>
+        accumulator + item.price * (productCounters[item.id] || 1),
+      0
+    );
+    return totalPrice;
   };
 
   return (
@@ -219,45 +253,138 @@ function Main() {
           <div className="flex flex-col justify-center h-full w-full">
             <div className="w-full h-11/12">
               <div className="flex h-full justify-between flex-col">
-                {cart.length > 0 ? cart.map((item, index) => {
-                  const productCounter = productCounters[item.id] || 1;
+                {cart.length > 0 ? (
+                  cart.map((item, index) => {
+                    const productCounter = productCounters[item.id] || 1;
 
-                  return (
-                    <div key={index} className="mb-4">
-                      <div className="w-full h-24 flex bg-white rounded-lg shadow-2xl justify-between items-center px-8">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="h-full object-cover"
-                        />
-                        <p className="w-60 text-xl text-center font-bold line-clamp-1">{item.title}</p>
-                        <p className="text-xl text-center font-bold line-clamp-1">${item.price * productCounter}</p>
-                        <div className="w-20 flex justify-center gap-4 border-2 border-black rounded-xl">
-                          <button onClick={() => IncreaseCounter(item.id)}>+</button>
-                          <span>{productCounter}</span>
-                          <button onClick={() => DecreaseCounter(item.id)}>-</button>
+                    return (
+                      <div key={index} className="mb-4">
+                        <div className="w-full h-24 flex bg-white rounded-lg shadow-2xl justify-between items-center px-8">
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            className="h-full object-cover"
+                          />
+                          <p className="w-60 text-xl text-center font-bold line-clamp-1">
+                            {item.title}
+                          </p>
+                          <p className="text-xl text-center font-bold line-clamp-1">
+                            ${item.price * productCounter}
+                          </p>
+                          <div className="w-20 flex justify-center gap-4 border-2 border-black rounded-xl">
+                            <button onClick={() => IncreaseCounter(item.id)}>
+                              +
+                            </button>
+                            <span>{productCounter}</span>
+                            <button onClick={() => DecreaseCounter(item.id)}>
+                              -
+                            </button>
+                          </div>
+                          <MdDelete
+                            size={30}
+                            className="cursor-pointer"
+                            onClick={() => handleDeleteitem(item.id)}
+                          />
                         </div>
-                        <MdDelete size={30} className="cursor-pointer" onClick={() => handleDeleteitem(item.id)} />
                       </div>
-                    </div>
-                  );
-                }) : (
+                    );
+                  })
+                ) : (
                   <div>
                     <div className="w-full flex justify-center items-center flex-col">
-                      <h2 className="text-4xl text-center font-bold mb-4">The Cart is Empty!!!</h2>
-                      <img className="w-50" src="https://static-00.iconduck.com/assets.00/empty-cart-illustration-512x428-mcol2auz.png"/>
+                      <h2 className="text-4xl text-center font-bold mb-4">
+                        The Cart is Empty!!!
+                      </h2>
+                      <img
+                        className="w-50"
+                        src="https://static-00.iconduck.com/assets.00/empty-cart-illustration-512x428-mcol2auz.png"
+                      />
                     </div>
                   </div>
                 )}
               </div>
               <div className="w-full flex justify-center">
-              <div className="w-2/4 h-12 rounded-lg bg-gradient-to-r from-white via-pink-500 to-red-500 flex justify-center items-center">
-                <button className="text-xl text-center font-bold text-white">Proceed to Check Out</button>
-              </div>
+                <div
+                  onClick={() => handletoproceed()}
+                  className="w-2/4 h-12 rounded-lg bg-gradient-to-r from-white via-pink-500 to-red-500 flex justify-center items-center"
+                >
+                  <button className="text-xl text-center font-bold text-white">
+                    Proceed to Check Out
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </CartModal>
+      )}
+
+      {paymentMethodModal && (
+        <CheckoutModal onClose={handelCloseModalPayment}>
+          <div className="flex flex-col justify-center h-full w-full">
+            <div className="w-full h-11/12 flex justify-center items-center">
+              {isPaid ? (
+                <div className="w-11/12">
+                  <div className="flex justify-center items-center flex-col">
+                    <p className="text-4xl text-center font-bold text-black">Thank You For Visiting Dil Foods</p>
+                    <img className="w-1/4" src="https://dilfoods.in/wp-content/uploads/2023/04/Dil-Foods-new-logo.png"/>
+                  </div>                   
+                </div>
+              ) : (
+                <form className="w-2/4 bg-gradient-to-r from-white via-pink-500 to-red-500 px-8">
+                  <p className="text-xl text-center font-bold text-white mb-8">
+                    Payment Details
+                  </p>
+
+                  <div className="flex justify-center items-center gap-5 mb-10">
+                    <input
+                      className="w-full h-12 rounded-md text-md pl-2"
+                      type="text"
+                      required={true}
+                      placeholder="Enter Card Number"
+                    />
+                  </div>
+
+                  <div className="flex justify-center items-center gap-5 mb-10">
+                    <input
+                      className="w-1/2 h-12 rounded-md text-md pl-2"
+                      type="text"
+                      required={true}
+                      placeholder="Enter Expiry Date"
+                    />
+                    <input
+                      className="w-1/2 h-12 rounded-md text-md pl-2"
+                      type="text"
+                      required={true}
+                      placeholder="Enter Cvv"
+                    />
+                  </div>
+
+                  <div className="flex justify-center items-center gap-5 mb-10">
+                    <input
+                      className="w-full h-12 rounded-md text-md pl-2"
+                      type="text"
+                      required={true}
+                      placeholder="Enter Cardholder's Name"
+                    />
+                  </div>
+
+                  <div className="text-md text-center font-bold text-white">
+                    <p className="mb-2">Total: ${calculateTotal()}</p>
+                  </div>
+
+                  <div className="flex w-full justify-center items-center">
+                    <button
+                      onClick={handlePaymentOrder}
+                      className="bg-black text-center p-2 mb-4 text-white rounded-md"
+                    >
+                      Place your Order
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </CheckoutModal>
       )}
     </div>
   );
