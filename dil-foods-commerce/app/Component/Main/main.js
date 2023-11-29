@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import React, { useState, useEffect } from "react";
 import Modal from "./modal";
 import CartModal from "./cartmodal";
@@ -15,15 +15,13 @@ function Main() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cart, setCart] = useState([]);
-  const [counters, setCounters] = useState(1);
+  const [productCounters, setProductCounters] = useState({});
 
   useEffect(() => {
     const apiUrl =
       selectedCategory === "all"
         ? "https://fakestoreapi.com/products"
-        : `https://fakestoreapi.com/products/category/${encodeURIComponent(
-            selectedCategory
-          )}`;
+        : `https://fakestoreapi.com/products/category/${encodeURIComponent(selectedCategory)}`;
 
     fetch(apiUrl)
       .then((res) => res.json())
@@ -41,20 +39,17 @@ function Main() {
     setSortingOption(event.target.value);
   };
 
-  const IncreaseCounter = () => {
-    if (counters >= 1) {
-      setCounters(counters + 1);
-    } else {
-      setCounters(1);
-    }
+  const IncreaseCounter = (ProductId) => {
+    setProductCounters((prevCounters) => {
+      return { ...prevCounters, [ProductId]: (prevCounters[ProductId] || 0) + 1 };
+    });
   };
 
-  const DecreaseCounter = () => {
-    if (counters >= 1) {
-      setCounters(counters - 1);
-    } else {
-      setCounters(1);
-    }
+  const DecreaseCounter = (ProductId) => {
+    setProductCounters((prevCounters) => {
+      const currentCounter = prevCounters[ProductId] || 0;
+      return { ...prevCounters, [ProductId]: currentCounter > 1 ? currentCounter - 1 : 1 };
+    });
   };
 
   const handelOpenModalProduct = (product) => {
@@ -72,6 +67,11 @@ function Main() {
       return updatedCart;
     });
 
+    setProductCounters((prevCounters) => ({
+      ...prevCounters,
+      [product.id]: prevCounters[product.id] || 1,
+    }));
+
     setSelectedProductCart(product);
     setModalCartOpen(true);
   };
@@ -86,6 +86,13 @@ function Main() {
     setModalCartOpen(false);
   };
 
+  const handleDeleteitem = (productId) => {
+    setCart((prevCart) => {
+      const updatedCart = prevCart.filter((item) => item.id !== productId);
+      return updatedCart;
+    });
+  };
+
   const getSortedRecords = () => {
     switch (sortingOption) {
       case "HighPrice":
@@ -95,13 +102,6 @@ function Main() {
       default:
         return records;
     }
-  };
-
-  const handleDeleteitem = (productId) => {
-    setCart((prevCart) => {
-      const updatedCart = prevCart.filter((item) => item.id !== productId);
-      return updatedCart;
-    });
   };
 
   return (
@@ -218,6 +218,8 @@ function Main() {
             <div className="w-full h-11/12">
               <div className="flex h-full justify-between flex-col">
                 {cart.length > 0 ? cart.map((item, index) => {
+                  const productCounter = productCounters[item.id] || 1;
+
                   return (
                     <div key={index} className="mb-4">
                       <div className="w-full h-24 flex bg-white rounded-lg shadow-2xl justify-between items-center px-8">
@@ -227,18 +229,24 @@ function Main() {
                           className="h-full object-cover"
                         />
                         <p className="w-60 text-xl text-center font-bold line-clamp-1">{item.title}</p>
-                        <p className="text-xl text-center font-bold line-clamp-1">${item.price * counters}</p>
-                        <div className="w-20 flex justify-center gap-4 border-2 border-black rounded-xl"><button onClick={IncreaseCounter}>+</button><span>{counters}</span><button onClick={DecreaseCounter}>-</button></div>
-                        <MdDelete size={30} className="cursor-pointer" onClick={()=>handleDeleteitem(item.id)} />
-                      </div>                      
+                        <p className="text-xl text-center font-bold line-clamp-1">${item.price * productCounter}</p>
+                        <div className="w-20 flex justify-center gap-4 border-2 border-black rounded-xl">
+                          <button onClick={() => IncreaseCounter(item.id)}>+</button>
+                          <span>{productCounter}</span>
+                          <button onClick={() => DecreaseCounter(item.id)}>-</button>
+                        </div>
+                        <MdDelete size={30} className="cursor-pointer" onClick={() => handleDeleteitem(item.id)} />
+                      </div>
                     </div>
                   );
-                }) : <div>
-                  <div className="w-full flex justify-center items-center flex-col">
-                    <h2 className="text-4xl text-center font-bold mb-4">The Cart is Empty!!!</h2>
-                    <img className="w-50" src="https://static-00.iconduck.com/assets.00/empty-cart-illustration-512x428-mcol2auz.png"/>
-                  </div>                  
-                  </div>}
+                }) : (
+                  <div>
+                    <div className="w-full flex justify-center items-center flex-col">
+                      <h2 className="text-4xl text-center font-bold mb-4">The Cart is Empty!!!</h2>
+                      <img className="w-50" src="https://static-00.iconduck.com/assets.00/empty-cart-illustration-512x428-mcol2auz.png"/>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
