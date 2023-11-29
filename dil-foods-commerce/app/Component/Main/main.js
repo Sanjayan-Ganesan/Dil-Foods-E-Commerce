@@ -62,19 +62,21 @@ function Main() {
   }, [cart]);
 
   const handelOpenModalCart = (product) => {
-    setCart((prevCart) => {
-      const updatedCart = [...prevCart, product];
-      return updatedCart;
-    });
-
-    setProductCounters((prevCounters) => ({
-      ...prevCounters,
-      [product.id]: prevCounters[product.id] || 1,
-    }));
-
+    // Check if the product already exists in the cart
+    const isProductInCart = cart.some((item) => item.id === product.id);
+  
+    if (!isProductInCart) {
+      setCart((prevCart) => [...prevCart, product]);
+      setProductCounters((prevCounters) => ({
+        ...prevCounters,
+        [product.id]: prevCounters[product.id] || 1,
+      }));
+    }
+  
     setSelectedProductCart(product);
     setModalCartOpen(true);
   };
+  
 
   const handelCloseModal = () => {
     setModalCartOpen(false);
@@ -247,6 +249,11 @@ function Main() {
                     </div>
                   </div>
                 )}
+              </div>
+              <div className="w-full flex justify-center">
+              <div className="w-2/4 h-12 rounded-lg bg-gradient-to-r from-white via-pink-500 to-red-500 flex justify-center items-center">
+                <button className="text-xl text-center font-bold text-white">Proceed to Check Out</button>
+              </div>
               </div>
             </div>
           </div>
