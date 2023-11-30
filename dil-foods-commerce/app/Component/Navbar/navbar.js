@@ -13,23 +13,23 @@ import { CgSpinner } from "react-icons/cg";
 
 function Navbar() {
   const [modalOpenSign, setModalOpenSign] = useState(false);
-  const [userName, setuserName] = useState("");
+  const [userName, setUserName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [showotp, setshowotp] = useState(false);
+  const [showotp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState("");
-  const [loading, setloading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handelOpenModalSignin = () => {
     setModalOpenSign(true);
   };
 
   function onCaptchVerify() {
-    if (otp == 1111) {
-      setloading(false);
+    if (otp === "1111") {
+      setLoading(false);
       console.log("Captcha verified");
       setModalOpenSign(false);
-      localStorage.getItem("UserName", userName);
-      localStorage.getItem("PhoneNumber", phoneNumber);
+      localStorage.setItem("UserName", userName);
+      localStorage.setItem("PhoneNumber", phoneNumber);
     } else {
       return;
     }
@@ -40,12 +40,11 @@ function Navbar() {
   };
 
   const handleSubmit = () => {
-    // if userName is null or empty alert
     if (userName === "" || phoneNumber === "") {
       alert("Please enter your name or phone number");
       return;
     } else {
-      setshowotp(true);
+      setShowOtp(true);
     }
   };
 
@@ -57,17 +56,24 @@ function Navbar() {
           alt="Company Logo"
         />
       </div>
-      <div className="flex items-center w-20 justify-between me-6">
-        <TbUserSquareRounded
-          size={30}
-          className="cursor-pointer"
-          onClick={() => handelOpenModalSignin()}
-        />
-        <HiOutlineShoppingCart size={30} className="cursor-pointer" />
+      <div className="flex items-center w-20 justify-between me-6 gap-5">
+        {showotp ? (
+          <span className="text-white font-bold text-sm">
+            Hello {userName}
+          </span>
+        ) : (
+          <>
+          <TbUserSquareRounded
+            size={30}
+            className="cursor-pointer"
+            onClick={() => handelOpenModalSignin()}
+          />
+          <HiOutlineShoppingCart size={30} className="cursor-pointer" />         
+          </>
+        )}
       </div>
       {modalOpenSign && (
         <SignInModal onClose={closeModalSignIn}>
-          {/* Content for the modal */}
           <div className="w-full h-2/4 flex justify-center items-center">
             <div className="w-1/3 h-full flex justify-center rounded-xl items-center bg-gradient-to-r from-white via-pink-500 to-red-500 flex-col m-auto">
               <div className="flex h-full justify-center items-center">
@@ -114,7 +120,7 @@ function Navbar() {
                         <input
                           type="text"
                           value={userName}
-                          onChange={(e) => setuserName(e.target.value)}
+                          onChange={(e) => setUserName(e.target.value)}
                           className="w-full h-full focus:outline-none"
                           placeholder="Enter Name"
                         />
@@ -140,7 +146,6 @@ function Navbar() {
                     </div>
                   </div>
                 )}
-                ;
               </div>
             </div>
           </div>
