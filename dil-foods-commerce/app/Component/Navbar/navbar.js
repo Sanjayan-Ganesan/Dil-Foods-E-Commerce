@@ -8,16 +8,32 @@ import SignInModal from "../Main/signinmodal";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { CiLock } from "react-icons/ci";
+import OtpInput from "otp-input-react";
+import { CgSpinner } from "react-icons/cg";
 
 function Navbar() {
   const [modalOpenSign, setModalOpenSign] = useState(false);
   const [userName, setuserName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [showotp, setshowotp] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [loading, setloading] = useState(false);
 
   const handelOpenModalSignin = () => {
     setModalOpenSign(true);
   };
+
+  function onCaptchVerify() {
+    if (otp == 1111) {
+      setloading(false);
+      console.log("Captcha verified");
+      setModalOpenSign(false);
+      localStorage.getItem("UserName", userName);
+      localStorage.getItem("PhoneNumber", phoneNumber);
+    } else {
+      return;
+    }
+  }
 
   const closeModalSignIn = () => {
     setModalOpenSign(false);
@@ -53,12 +69,12 @@ function Navbar() {
         <SignInModal onClose={closeModalSignIn}>
           {/* Content for the modal */}
           <div className="w-full h-2/4 flex justify-center items-center">
-            <div className="w-1/3 h-full flex justify-center rounded-xl items-center bg-white flex-col m-auto">
+            <div className="w-1/3 h-full flex justify-center rounded-xl items-center bg-gradient-to-r from-white via-pink-500 to-red-500 flex-col m-auto">
               <div className="flex h-full justify-center items-center">
                 {showotp ? (
-                  <div className="h-full p-10">
+                  <div className="h-full p-6">
                     <div>
-                      <div className="w-full flex flex-col items-center justify-center mb-2">
+                      <div className="w-full flex flex-col items-center justify-center mb-2 text-center">
                         <CiLock size={50} />
                         <h2 className="text-2l font-bold my-2">
                           Hello {userName}!!!
@@ -66,12 +82,29 @@ function Navbar() {
                         <h2 className="text-2l font-bold my-2">
                           Please Enter the OTP in +{phoneNumber}
                         </h2>
+                        <OtpInput
+                          value={otp}
+                          onChange={setOtp}
+                          OTPLength={4}
+                          otpType="number"
+                          disabled={false}
+                          autoFocus
+                        ></OtpInput>
+                        <button
+                          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full my-4 flex justify-center items-center gap-3"
+                          onClick={onCaptchVerify}
+                        >
+                          {loading && (
+                            <CgSpinner size={20} className="animate-spin" />
+                          )}
+                          <span>Verify OTP</span>
+                        </button>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="h-full p-10">
-                    <p className="text-sm font-normal mb-4">
+                    <p className="text-sm font-bold mb-4">
                       Please enter your Mobile number to Sign In. <br />
                       We will send an OTP to verify your number.
                     </p>
