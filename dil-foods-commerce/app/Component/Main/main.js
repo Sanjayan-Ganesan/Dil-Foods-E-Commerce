@@ -20,6 +20,12 @@ function Main() {
   const [paymentMethodModal, setPaymentMethodModal] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
 
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [cardHolderName, setCardHolderName] = useState("");
+
+
   useEffect(() => {
     const apiUrl =
       selectedCategory === "all"
@@ -39,6 +45,32 @@ function Main() {
         setLoading(false);
       });
   }, [selectedCategory]);
+
+  const handleCardNumberChange = (event) => {
+    setCardNumber(event.target.value);
+  };
+
+  const handleExpiryDateChange = (event) => {
+    setExpiryDate(event.target.value);
+  };
+
+  const handleCvvChange = (event) => {
+    setCvv(event.target.value);
+  };
+
+  const handleCardHolderNameChange = (event) => {
+    setCardHolderName(event.target.value);
+  };
+
+  const isPaymentFormValid = () => {
+    return (
+      cardNumber.trim() !== "" &&
+      expiryDate.trim() !== "" &&
+      cvv.trim() !== "" &&
+      cardHolderName.trim() !== ""
+    );
+  };
+
 
   const handleSortingChange = (event) => {
     setSortingOption(event.target.value);
@@ -325,12 +357,18 @@ function Main() {
               {isPaid ? (
                 <div className="w-11/12">
                   <div className="flex justify-center items-center flex-col">
-                    <p className="text-4xl text-center font-bold text-black">Thank You For Visiting Dil Foods</p>
-                    <img className="w-1/4" src="https://dilfoods.in/wp-content/uploads/2023/04/Dil-Foods-new-logo.png"/>
-                  </div>                   
+                    <p className="text-4xl text-center font-bold text-black">
+                      Thank You For Visiting Dil Foods
+                    </p>
+                    <img
+                      className="w-1/4"
+                      src="https://dilfoods.in/wp-content/uploads/2023/04/Dil-Foods-new-logo.png"
+                    />
+                  </div>
                 </div>
               ) : (
                 <form className="w-2/4 bg-gradient-to-r from-white via-pink-500 to-red-500 px-8">
+                  {/* ... (previous code) */}
                   <p className="text-xl text-center font-bold text-white mb-8">
                     Payment Details
                   </p>
@@ -341,6 +379,8 @@ function Main() {
                       type="text"
                       required={true}
                       placeholder="Enter Card Number"
+                      value={cardNumber}
+                      onChange={handleCardNumberChange}
                     />
                   </div>
 
@@ -350,12 +390,16 @@ function Main() {
                       type="text"
                       required={true}
                       placeholder="Enter Expiry Date"
+                      value={expiryDate}
+                      onChange={handleExpiryDateChange}
                     />
                     <input
                       className="w-1/2 h-12 rounded-md text-md pl-2"
                       type="text"
                       required={true}
                       placeholder="Enter Cvv"
+                      value={cvv}
+                      onChange={handleCvvChange}
                     />
                   </div>
 
@@ -365,6 +409,8 @@ function Main() {
                       type="text"
                       required={true}
                       placeholder="Enter Cardholder's Name"
+                      value={cardHolderName}
+                      onChange={handleCardHolderNameChange}
                     />
                   </div>
 
@@ -375,7 +421,10 @@ function Main() {
                   <div className="flex w-full justify-center items-center">
                     <button
                       onClick={handlePaymentOrder}
-                      className="bg-black text-center p-2 mb-4 text-white rounded-md"
+                      className={`${
+                        isPaymentFormValid() ? "bg-black" : "bg-gray-500"
+                      } text-center p-2 mb-4 text-white rounded-md`}
+                      disabled={!isPaymentFormValid()}
                     >
                       Place your Order
                     </button>
